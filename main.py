@@ -1,108 +1,93 @@
 import pyautogui
-import cv2
-from PIL import ImageGrab
 import time
-import os
 import global_data
 import const
 from hot_key import Hotkey
+import screen
 
 
-def get_target_pos(filename, reg_x_start, reg_y_start, reg_x_end, reg_y_end):
-    filename = os.path.join('pic', filename)
-
-    sc_region = (reg_x_start, reg_y_start, reg_x_end, reg_y_end) #距离左上右下的像素
-    sc_img = ImageGrab.grab(sc_region)
-    save_path = "screen_region.jpg"
-    sc_img.save(save_path)
-
-    screen = cv2.imread(save_path)
-    target = cv2.imread(filename)
-
-    result = cv2.matchTemplate(target, screen, cv2.TM_SQDIFF_NORMED)
-    min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
-    print(min_val, max_val, min_loc, max_loc)
-    if min_val < 0.01:
-        _x, _y = min_loc
-        return (reg_x_start + _x, reg_y_start + _y)
-
-    return None
+class RunFlag(object):
+    START = 1
+    CLICK_SHEN_LONG = 2
+    QIAN_WANG_SHEN_LONG = 3
+    PI_PEI_SHEN_LONG = 4
+    ENTER_SHEN_LONG = 5
+    GO_POINT = 6
+    ATTACK = 7
 
 
-def auto_shen_long_pan_one_turn():
-    pics = [
-        'shen_you.png',
-        'huo_dong.bmp',
-        'shen_long_pan.png',
-        'qian_wang.png',
-        'pi_pei.png',
-    ]
+class ShenLong(object):
+    def __init__(self) -> None:
+        self._screen_utils = screen.Screen('TCGamer', 'Qt5152QWindowIcon')
+        self._flag = RunFlag.GO_POINT
+        self._attack_step = 0
 
-    for pic_name in pics:
-        pos = get_target_pos(pic_name, 0, 0, 1900, 1000)
+    def capture(self):
+        self._screen_utils.capture()
 
-        if pos is None:
-            if pic_name == 'huo_dong.bmp' or pic_name == 'shen_you.png':
-                continue
+    def run_once(self):
+        if self._flag == RunFlag.START:
+            pos = self._screen_utils.get_target_pos('huo_dong.bmp', 0.01)
+            if pos is not None:
+                self._screen_utils.click(pos[0] + 10, pos[1] + 10)
+                self._flag = RunFlag.CLICK_SHEN_LONG
 
-            return
+        elif self._flag == RunFlag.CLICK_SHEN_LONG:
+            pos = self._screen_utils.get_target_pos('shen_long_pan.png')
+            if pos is not None:
+                self._screen_utils.click(pos[0] + 10, pos[1] + 10)
+                self._flag = RunFlag.QIAN_WANG_SHEN_LONG
 
-        pyautogui.click(pos[0] + 10, pos[1] + 10, duration=0.2)
+        elif self._flag == RunFlag.QIAN_WANG_SHEN_LONG:
+            pos = self._screen_utils.get_target_pos('qian_wang.png')
+            if pos is not None:
+                self._screen_utils.click(pos[0] + 10, pos[1] + 10)
+                self._flag = RunFlag.PI_PEI_SHEN_LONG
 
-        time.sleep(1)
+            else:
+                self._flag = RunFlag.CLICK_SHEN_LONG
 
-    while 1:
-        pos = get_target_pos('jin_ru.png', 0, 0, 1900, 1000)
-        if pos is None:
-            time.sleep(1)
-            continue
+        elif self._flag == RunFlag.PI_PEI_SHEN_LONG:
+            pos = self._screen_utils.get_target_pos('pi_pei.png')
+            if pos is not None:
+                self._screen_utils.click(pos[0] + 10, pos[1] + 10)
+                self._flag = RunFlag.ENTER_SHEN_LONG
 
-        pyautogui.click(pos[0] + 10, pos[1] + 10, duration=0.2)
-        return True
+        elif self._flag == RunFlag.ENTER_SHEN_LONG:
+            pos = self._screen_utils.get_target_pos('jin_ru.png')
+            if pos is not None:
+                self._screen_utils.click(pos[0] + 10, pos[1] + 10)
+                self._flag = RunFlag.GO_POINT
 
+        elif self._flag == RunFlag.GO_POINT:
+            pos = self._screen_utils.get_target_pos('shen_long1.png')
+            pos2 = self._screen_utils.get_target_pos('shen_long2.png')
+            confirm_pos = self._screen_utils.get_target_pos('que_ding.png')
+            if pos is not None:
+                self._screen_utils.click(1469, 348)
+                self._attack_step = 0
+                self._flag = RunFlag.ATTACK
 
-def attack_sleep(num):
-    for i in range(num):
-        time.sleep(1)
+            elif pos2 is not None:
+                self._screen_utils.click(1469, 348)
+                self._attack_step = 0
+                self._flag = RunFlag.ATTACK
 
-        pyautogui.click(1617, 874, duration=0.2)
+            elif confirm_pos is not None:
+                self._screen_utils.click(confirm_pos[0] + 10, confirm_pos[1] + 10)
+                self._flag = RunFlag.START
 
+        elif self._flag == RunFlag.ATTACK:
+            self._screen_utils.click(1617, 874)
+            self._attack_step += 1
+            if self._attack_step == 3:
+                self._flag = RunFlag.GO_POINT
 
-def auto_go():
-    while 1:
-        pos = get_target_pos('shen_you.png', 0, 0, 1900, 1000)
-        if pos is not None:
-            pyautogui.click(pos[0] + 10, pos[1] + 10, duration=0.2)
-            time.sleep(1)
-            continue
-
-        pos = get_target_pos('shen_long1.png', 0, 0, 1900, 1000)
-        if pos is not None:
-            pyautogui.click(1469, 348, duration=0.2)
-            attack_sleep(5)
-            continue
-
-        pos = get_target_pos('shen_long2.png', 0, 0, 1900, 1000)
-        if pos is not None:
-            pyautogui.click(1469, 348, duration=0.2)
-            attack_sleep(5)
-            continue
-
-        pos = get_target_pos('que_ren.png', 0, 0, 1900, 1000)
-        if pos is not None:
-            pyautogui.click(pos[0] + 10, pos[1] + 10, duration=0.2)
-            attack_sleep(5)
-            continue
-
-        pos = get_target_pos('que_ding.png', 0, 0, 1900, 1000)
-        if pos is not None:
-            pyautogui.click(pos[0] + 10, pos[1] + 10, duration=0.2)
-            break
-
-        time.sleep(5)
+        print(self._flag)
 
 def main():
     #auto_go()
+    shenlong = ShenLong()
     while 1:
         if global_data.GAME_STATE == const.GameState.PAUSE:
             time.sleep(1)
@@ -111,11 +96,9 @@ def main():
         elif global_data.GAME_STATE == const.GameState.EXIT:
             break
 
-        ret = auto_shen_long_pan_one_turn()
-        if ret is None:
-            continue
-
-        auto_go()
+        shenlong.capture()
+        shenlong.run_once()
+        time.sleep(1)
 
 if __name__ == '__main__':
     global_data.GAME_STATE = const.GameState.RUNNING

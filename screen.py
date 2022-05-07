@@ -28,8 +28,19 @@ class Screen:
         self.bind(win_title,win_class,hwnd)
         self._screen_cv2 = None
 
-    def bind(self, win_title=None,win_class=None,hwnd=None):
+    def bind(self, win_title=None, win_class=None, hwnd=None):
         '可以直接传入句柄，否则就根据class和title来查找，并把句柄做为实例属性 self._hwnd'
+        _desk = win32gui.GetDesktopWindow()
+        _next = win32gui.GetWindow(_desk, win32con.GW_CHILD)
+        while 1:
+            if not _next:
+                break
+
+            _text = win32gui.GetWindowText(_next)
+            if 'TCGamer' in _text:
+                print(_text)
+            _next = win32gui.GetWindow(_next, win32con.GW_HWNDNEXT)
+
         if not hwnd:
             self._hwnd = win32gui.FindWindow(win_class, win_title)
             print('bind:', self._hwnd)
@@ -45,16 +56,19 @@ class Screen:
 
         return self.img
 
-    def get_target_pos(self, filename):
-        filename = os.path.join('pic', filename)
-        target = cv2.imread(filename)
+    def get_target_pos(self, filename, sim=0.02):
+        try:
+            filename = os.path.join('pic', filename)
+            target = cv2.imread(filename)
 
-        result = cv2.matchTemplate(target, self._screen_cv2, cv2.TM_SQDIFF_NORMED)
-        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
-        print(min_val, max_val, min_loc, max_loc)
-        if min_val < 0.01:
-            _x, _y = min_loc
-            return _x, _y
+            result = cv2.matchTemplate(target, self._screen_cv2, cv2.TM_SQDIFF_NORMED)
+            min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
+            print(filename, min_val, max_val, min_loc, max_loc)
+            if min_val < sim:
+                _x, _y = min_loc
+                return _x, _y
+        except Exception as e:
+            print(e)
 
         return None
 
@@ -65,4 +79,4 @@ class Screen:
 
 if __name__ =='__main__':
     screen = Screen('TCGamer', 'Qt5152QWindowIcon')
-    screen.capture('test.bmp')
+    screen.capture()
