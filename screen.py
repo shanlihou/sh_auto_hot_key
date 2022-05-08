@@ -23,10 +23,14 @@ def to_cvimg(pix):
 # 直接写一个类，方便以后使用
 class Screen:
     def __init__(self, win_title=None, win_class=None, hwnd=None) -> None:
+        self._hwnd = None
         self.app = QApplication(['WindowCapture'])
         self.screen = QApplication.primaryScreen()
         self.bind(win_title,win_class,hwnd)
         self._screen_cv2 = None
+
+    def is_bind(self):
+        return self._hwnd is not None
 
     def bind(self, win_title=None, win_class=None, hwnd=None):
         '可以直接传入句柄，否则就根据class和title来查找，并把句柄做为实例属性 self._hwnd'
@@ -37,15 +41,14 @@ class Screen:
                 break
 
             _text = win32gui.GetWindowText(_next)
-            if 'TCGamer' in _text:
-                print(_text)
-            _next = win32gui.GetWindow(_next, win32con.GW_HWNDNEXT)
+            _class_name = win32gui.GetClassName(_next)
+            if win_title in _text and win_class in _class_name:
+                print(_text, _class_name, _next)
+                self._hwnd = _next
+                print('bind:', self._hwnd)
+                break
 
-        if not hwnd:
-            self._hwnd = win32gui.FindWindow(win_class, win_title)
-            print('bind:', self._hwnd)
-        else:
-            self._hwnd = hwnd
+            _next = win32gui.GetWindow(_next, win32con.GW_HWNDNEXT)
 
     def capture(self) -> ndarray:
         '截图方法，在窗口为 1920 x 1080 大小下，最快速度25ms (grabWindow: 17ms, to_cvimg: 8ms)'

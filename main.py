@@ -18,9 +18,12 @@ class RunFlag(object):
 
 class ShenLong(object):
     def __init__(self) -> None:
-        self._screen_utils = screen.Screen('TCGamer', 'Qt5152QWindowIcon')
+        self._screen_utils = screen.Screen('TCGamer', 'WindowIcon')
         self._flag = RunFlag.GO_POINT
         self._attack_step = 0
+
+    def is_bind(self):
+        return self._screen_utils.is_bind()
 
     def capture(self):
         self._screen_utils.capture()
@@ -88,6 +91,9 @@ class ShenLong(object):
 def main():
     #auto_go()
     shenlong = ShenLong()
+    if not shenlong.is_bind():
+        return
+
     while 1:
         if global_data.GAME_STATE == const.GameState.PAUSE:
             time.sleep(1)
