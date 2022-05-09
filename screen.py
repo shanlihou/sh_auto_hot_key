@@ -7,6 +7,7 @@ import cv2
 from PIL import ImageGrab
 import const
 import os
+import logging
 
 
 def to_cvimg(pix):
@@ -43,9 +44,9 @@ class Screen:
             _text = win32gui.GetWindowText(_next)
             _class_name = win32gui.GetClassName(_next)
             if win_title in _text and win_class in _class_name:
-                print(_text, _class_name, _next)
+                logging.INFO(_text, _class_name, _next)
                 self._hwnd = _next
-                print('bind:', self._hwnd)
+                logging.INFO('bind:', self._hwnd)
                 break
 
             _next = win32gui.GetWindow(_next, win32con.GW_HWNDNEXT)
@@ -66,12 +67,12 @@ class Screen:
 
             result = cv2.matchTemplate(target, self._screen_cv2, cv2.TM_SQDIFF_NORMED)
             min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
-            print(filename, min_val, max_val, min_loc, max_loc)
+            logging.INFO(filename, min_val, max_val, min_loc, max_loc)
             if min_val < sim:
                 _x, _y = min_loc
                 return _x, _y
         except Exception as e:
-            print(e)
+            logging.ERROR(e)
 
         return None
 

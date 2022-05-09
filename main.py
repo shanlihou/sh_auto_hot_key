@@ -4,6 +4,7 @@ import global_data
 import const
 from hot_key import Hotkey
 import screen
+import logging
 
 
 class RunFlag(object):
@@ -86,7 +87,7 @@ class ShenLong(object):
             if self._attack_step == 3:
                 self._flag = RunFlag.GO_POINT
 
-        print(self._flag)
+        logging.INFO(self._flag)
 
 def main():
     #auto_go()
@@ -107,6 +108,7 @@ def main():
         time.sleep(1)
 
 if __name__ == '__main__':
+    logging.basicConfig(filename='auto.log', level = getattr(logging, 'DEBUG'), format='%(levelname)s %(asctime)s %(message)s')
     global_data.GAME_STATE = const.GameState.RUNNING
     hotkey = Hotkey()
     hotkey.start()
