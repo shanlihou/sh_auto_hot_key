@@ -5,6 +5,7 @@ import const
 from hot_key import Hotkey
 import screen
 import logging
+import utils
 
 
 class RunFlag(object):
@@ -20,7 +21,7 @@ class RunFlag(object):
 class ShenLong(object):
     def __init__(self) -> None:
         self._screen_utils = screen.Screen('TCGamer', 'WindowIcon')
-        self._flag = RunFlag.GO_POINT
+        self._flag = RunFlag.START
         self._attack_step = 0
 
     def is_bind(self):
@@ -37,7 +38,7 @@ class ShenLong(object):
                 self._flag = RunFlag.CLICK_SHEN_LONG
 
         elif self._flag == RunFlag.CLICK_SHEN_LONG:
-            pos = self._screen_utils.get_target_pos('shen_long_pan.png')
+            pos = self._screen_utils.get_target_pos('shen_long_pan.png', 0.04)
             if pos is not None:
                 self._screen_utils.click(pos[0] + 10, pos[1] + 10)
                 self._flag = RunFlag.QIAN_WANG_SHEN_LONG
@@ -67,7 +68,12 @@ class ShenLong(object):
             pos = self._screen_utils.get_target_pos('shen_long1.png')
             pos2 = self._screen_utils.get_target_pos('shen_long2.png')
             confirm_pos = self._screen_utils.get_target_pos('que_ding.png')
-            if pos is not None:
+            utils.INFO('go_point', pos, pos2, confirm_pos)
+            if confirm_pos is not None:
+                self._screen_utils.click(confirm_pos[0] + 10, confirm_pos[1] + 10)
+                self._flag = RunFlag.START
+
+            elif pos is not None:
                 self._screen_utils.click(1469, 348)
                 self._attack_step = 0
                 self._flag = RunFlag.ATTACK
@@ -77,17 +83,13 @@ class ShenLong(object):
                 self._attack_step = 0
                 self._flag = RunFlag.ATTACK
 
-            elif confirm_pos is not None:
-                self._screen_utils.click(confirm_pos[0] + 10, confirm_pos[1] + 10)
-                self._flag = RunFlag.START
-
         elif self._flag == RunFlag.ATTACK:
             self._screen_utils.click(1617, 874)
             self._attack_step += 1
             if self._attack_step == 3:
                 self._flag = RunFlag.GO_POINT
 
-        logging.INFO(self._flag)
+        utils.INFO(self._flag)
 
 def main():
     #auto_go()
