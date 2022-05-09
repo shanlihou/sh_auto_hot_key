@@ -45,7 +45,7 @@ class Screen:
             _text = win32gui.GetWindowText(_next)
             _class_name = win32gui.GetClassName(_next)
             if win_title in _text and win_class in _class_name:
-                utils.INFO(_text, _class_name, _next)
+                # utils.INFO(_text, _class_name, _next)
                 self._hwnd = _next
                 utils.INFO('bind:', self._hwnd)
                 break
@@ -60,6 +60,14 @@ class Screen:
         self._screen_cv2 = cv2.imread(const.SCREEN_PATH)
 
         return self.img
+
+    def capture_global(self):
+        sc_region = (0, 0, 1900, 1000) #距离左上右下的像素
+        sc_img = ImageGrab.grab(sc_region)
+        save_path = const.SCREEN_PATH
+        sc_img.save(save_path)
+
+        self._screen_cv2 = cv2.imread(save_path)
 
     def get_target_pos(self, filename, sim=0.02):
         try:

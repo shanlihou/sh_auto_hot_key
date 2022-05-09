@@ -1,1 +1,2 @@
 GAME_STATE = 0
+IS_GLOBAL = 0
