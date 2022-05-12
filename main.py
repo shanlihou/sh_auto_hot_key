@@ -75,8 +75,12 @@ class ShenLong(object):
             pos = self._screen_utils.get_target_pos('shen_long1.png')
             pos2 = self._screen_utils.get_target_pos('shen_long2.png')
             confirm_pos = self._screen_utils.get_target_pos('que_ding.png')
+            que_ren_pos = self._screen_utils.get_target_pos('que_ren.png')
             utils.INFO('go_point', pos, pos2, confirm_pos)
-            if confirm_pos is not None:
+            if que_ren_pos is not None:
+                self._screen_utils.click(que_ren_pos[0] + 10, que_ren_pos[1] + 10)
+
+            elif confirm_pos is not None:
                 self._screen_utils.click(confirm_pos[0] + 10, confirm_pos[1] + 10)
                 self._flag = RunFlag.START
 
