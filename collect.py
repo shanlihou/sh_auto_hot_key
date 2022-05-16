@@ -18,6 +18,7 @@ class RunFlag(object):
     SEARCH = 6
     COLLECT = 7
     COLLECT_WAIT = 8
+    FIX = 9
 
 
 class Collect(object):
@@ -31,6 +32,7 @@ class Collect(object):
         self._collect_png = 'bai_yu_dou.png'
         self._search_time_out = 60
         self._wait_time_out = 3
+        self._time_out = 5
 
     def is_bind(self):
         return self._screen_utils.is_bind()
@@ -43,21 +45,31 @@ class Collect(object):
 
     def run_once(self):
         if self._flag == RunFlag.START:
-            pos = self._screen_utils.get_target_pos('jiao_yi.png', 0.01)
+            pos = self._screen_utils.get_target_pos('jiao_yi.png', 0.05)
+            left_pos = self._screen_utils.get_target_pos('zuo_la.png', 0.1)
+
             if pos is not None:
                 self._screen_utils.click(pos[0] + 10, pos[1] + 10)
                 self._flag = RunFlag.EXCHANGE
 
+            elif left_pos is not None:
+                self._screen_utils.click(left_pos[0] + 10, left_pos[1] + 10)
+
         elif self._flag == RunFlag.EXCHANGE:
-            pos = self._screen_utils.get_target_pos('guan_zhu.png', 0.01)
+            pos = self._screen_utils.get_target_pos('guan_zhu.png', 0.05)
             if pos is not None:
                 self._screen_utils.click(pos[0] + 10, pos[1] + 10)
                 self._flag = RunFlag.FAVO
+                self._time_out = 5
         
         elif self._flag == RunFlag.FAVO:
+            self._time_out -= 1
             pos = self._screen_utils.get_target_pos(self._collect_png, 0.01)
-            get_pos = self._screen_utils.get_target_pos('huo_qu.png', 0.01)
-            if get_pos:
+            get_pos = self._screen_utils.get_target_pos('huo_qu.png', 0.02)
+            if self._time_out <= 0:
+                self._flag = RunFlag.FIX
+
+            elif get_pos:
                 self._screen_utils.click(get_pos[0] + 10, get_pos[1] + 10)
                 self._flag = RunFlag.SHENG_HUO
                 
@@ -65,7 +77,7 @@ class Collect(object):
                 self._screen_utils.click(pos[0] + 10, pos[1] + 10)
 
         elif self._flag == RunFlag.SHENG_HUO:
-            pos = self._screen_utils.get_target_pos('sheng_huo.png', 0.01)
+            pos = self._screen_utils.get_target_pos('sheng_huo.png', 0.03)
             if pos is not None:
                 self._screen_utils.click(pos[0] + 10, pos[1] + 10)
                 self._flag = RunFlag.SHENG_HUO_TAB
@@ -78,7 +90,7 @@ class Collect(object):
                 self._flag = RunFlag.SEARCH
 
         elif self._flag == RunFlag.SEARCH:
-            pos = self._screen_utils.get_target_pos('cai_ji.png', 0.01)
+            pos = self._screen_utils.get_target_pos('cai_ji.png', 0.1)
             if pos is not None:
                 self._flag = RunFlag.COLLECT
             
@@ -88,7 +100,7 @@ class Collect(object):
                     self._flag = RunFlag.START
 
         elif self._flag == RunFlag.COLLECT:
-            pos = self._screen_utils.get_target_pos('cai_ji.png', 0.01)
+            pos = self._screen_utils.get_target_pos('cai_ji.png', 0.1)
             print('cai ji pos:', pos)
             if pos is not None:
                 self._screen_utils.click(pos[0] + 10, pos[1] + 10)
@@ -102,6 +114,9 @@ class Collect(object):
             self._wait_time_out -= 1
             if self._wait_time_out <= 0:
                 self._flag = RunFlag.COLLECT
+
+        elif self._flag == RunFlag.FIX:
+            self._flag = RunFlag.START
 
         utils.INFO(self._flag)
 

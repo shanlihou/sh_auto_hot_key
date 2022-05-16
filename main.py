@@ -17,6 +17,7 @@ class RunFlag(object):
     ENTER_SHEN_LONG = 5
     GO_POINT = 6
     ATTACK = 7
+    FIX = 8
 
 
 class ShenLong(object):
