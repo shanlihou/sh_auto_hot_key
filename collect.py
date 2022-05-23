@@ -7,6 +7,7 @@ import screen
 import logging
 import utils
 import sys
+import functools
 
 
 class RunFlag(object):
@@ -21,6 +22,13 @@ class RunFlag(object):
     FIX = 9
 
 
+@functools.lru_cache(100)
+def get_flag_name(flag_id):
+    for k, v in RunFlag.__dict__.items():
+        if flag_id == v:
+            return k
+
+
 class Collect(object):
     def __init__(self) -> None:
         if global_data.IS_GLOBAL:
@@ -29,10 +37,11 @@ class Collect(object):
             self._screen_utils = screen.Screen('TCGamer', 'WindowIcon')
         self._flag = RunFlag.START
         self._attack_step = 0
-        self._collect_png = 'bai_yu_dou.png'
+        self._collect_png = 'zi_su.png'
         self._search_time_out = 60
         self._wait_time_out = 3
         self._time_out = 5
+        self._cache_dic = {}
 
     def is_bind(self):
         return self._screen_utils.is_bind()
@@ -81,23 +90,26 @@ class Collect(object):
             if pos is not None:
                 self._screen_utils.click(pos[0] + 10, pos[1] + 10)
                 self._flag = RunFlag.SHENG_HUO_TAB
+                self._cache_dic.pop('push_qian_wang', None)
 
         elif self._flag == RunFlag.SHENG_HUO_TAB:
-            pos = self._screen_utils.get_target_pos('wang.png', 0.01)
+            pos = self._screen_utils.get_target_pos('wang.png', 0.02)
             if pos is not None:
                 self._screen_utils.click(pos[0] + 10, pos[1] + 10)
-                self._search_time_out = 60
+                self._cache_dic['push_qian_wang'] = 1
+
+            elif self._cache_dic.get('push_qian_wang', 1):
                 self._flag = RunFlag.SEARCH
+                self._search_time_out = 60
 
         elif self._flag == RunFlag.SEARCH:
             pos = self._screen_utils.get_target_pos('cai_ji.png', 0.1)
-            if pos is not None:
+            self._search_time_out -= 1
+            if self._search_time_out <= 0:
+                self._flag = RunFlag.START
+
+            elif pos is not None:
                 self._flag = RunFlag.COLLECT
-            
-            else:
-                self._search_time_out -= 1
-                if self._search_time_out <= 0:
-                    self._flag = RunFlag.START
 
         elif self._flag == RunFlag.COLLECT:
             pos = self._screen_utils.get_target_pos('cai_ji.png', 0.1)
@@ -118,7 +130,7 @@ class Collect(object):
         elif self._flag == RunFlag.FIX:
             self._flag = RunFlag.START
 
-        utils.INFO(self._flag)
+        utils.INFO(get_flag_name(self._flag))
 
 def main():
     #auto_go()
