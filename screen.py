@@ -69,7 +69,7 @@ class Screen:
 
         self._screen_cv2 = cv2.imread(save_path)
 
-    def get_target_pos(self, filename, sim=0.02):
+    def get_target_pos(self, filename, sim=0.02, limit=None):
         try:
             filename = os.path.join('pic', filename)
             target = cv2.imread(filename)
@@ -79,6 +79,11 @@ class Screen:
             utils.INFO(filename, min_val, max_val, min_loc, max_loc)
             if min_val < sim:
                 _x, _y = min_loc
+                if limit:
+                    _xs, _ys, _xe, _ye = limit
+                    if not (_xs < _x < _xe and _ys < _y < _ye):
+                        return None
+
                 return _x, _y
         except Exception as e:
             utils.ERROR(e)
