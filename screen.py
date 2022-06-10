@@ -47,7 +47,7 @@ class Screen:
             if win_title in _text and win_class in _class_name:
                 # utils.INFO(_text, _class_name, _next)
                 self._hwnd = _next
-                utils.INFO('bind:', self._hwnd)
+                utils.INFO('bind:', self._hwnd, _text, _class_name)
                 break
 
             _next = win32gui.GetWindow(_next, win32con.GW_HWNDNEXT)

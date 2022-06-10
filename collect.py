@@ -66,7 +66,7 @@ class Collect(object):
                 self._screen_utils.click(left_pos[0] + 10, left_pos[1] + 10)
 
         elif self._flag == RunFlag.EXCHANGE:
-            pos = self._screen_utils.get_target_pos('guan_zhu.png', 0.01)
+            pos = self._screen_utils.get_target_pos('guan_zhu.png', 0.05, limit=(600, 170, 700, 270))
             if pos is not None:
                 self._screen_utils.click(pos[0] + 10, pos[1] + 10)
                 self._cache_dic['push_guan_zhu'] = 1
@@ -76,7 +76,7 @@ class Collect(object):
         
         elif self._flag == RunFlag.FAVO:
             pos = self._screen_utils.get_target_pos(self._collect_png, 0.01)
-            get_pos = self._screen_utils.get_target_pos('huo_qu.png', 0.02)
+            get_pos = self._screen_utils.get_target_pos('huo_qu.png', 0.07)
 
             if get_pos:
                 self._screen_utils.click(get_pos[0] + 10, get_pos[1] + 10)
@@ -93,12 +93,12 @@ class Collect(object):
                 self._cache_dic.pop('push_qian_wang', None)
 
         elif self._flag == RunFlag.SHENG_HUO_TAB:
-            pos = self._screen_utils.get_target_pos('wang.png', 0.02)
+            pos = self._screen_utils.get_target_pos('wang.png', 0.05, limit=(1250, 760, 1420, 863))
             if pos is not None:
                 self._screen_utils.click(pos[0] + 10, pos[1] + 10)
                 self._cache_dic['push_qian_wang'] = 1
 
-            elif self._cache_dic.get('push_qian_wang', 1):
+            elif self._cache_dic.get('push_qian_wang', 0):
                 self._flag = RunFlag.SEARCH
                 self._search_time_out = 60
 
