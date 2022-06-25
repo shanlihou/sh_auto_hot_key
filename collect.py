@@ -56,11 +56,15 @@ class Collect(object):
         if self._flag == RunFlag.START:
             pos = self._screen_utils.get_target_pos('jiao_yi.png', 0.05, limit=(1376, 67, 1492, 167))
             left_pos = self._screen_utils.get_target_pos('zuo_la.png', 0.1)
-
+            boss_hp_pos = self._screen_utils.get_target_pos('boss_hp.png', 0.01)
+            utils.INFO('jiaoyi:{}, zuola:{}, boss_hp:{}'.format(pos, left_pos, boss_hp_pos))
             if pos is not None:
                 self._screen_utils.click(pos[0] + 10, pos[1] + 10)
                 self._flag = RunFlag.EXCHANGE
                 self._cache_dic.pop('push_guan_zhu', None)
+
+            elif boss_hp_pos is not None:
+                self._screen_utils.click(1666, 115)
 
             elif left_pos is not None:
                 self._screen_utils.click(left_pos[0] + 10, left_pos[1] + 10)

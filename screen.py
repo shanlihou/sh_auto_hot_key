@@ -91,6 +91,7 @@ class Screen:
         return None
 
     def click(self, cx, cy):
+        utils.INFO('will click :({}, {})'.format(cx, cy))
         long_position = win32api.MAKELONG(cx, cy)#模拟鼠标指针 传送到指定坐标
         win32api.SendMessage(self._hwnd, win32con.WM_LBUTTONDOWN, win32con.MK_LBUTTON, long_position)#模拟鼠标按下
         win32api.SendMessage(self._hwnd, win32con.WM_LBUTTONUP, win32con.MK_LBUTTON, long_position)#模拟鼠标弹起
