@@ -9,6 +9,7 @@ import const
 import os
 import logging
 import utils
+import global_data
 
 
 def to_cvimg(pix):
@@ -56,15 +57,15 @@ class Screen:
         '截图方法，在窗口为 1920 x 1080 大小下，最快速度25ms (grabWindow: 17ms, to_cvimg: 8ms)'
         self.pix = self.screen.grabWindow(self._hwnd)
         self.img = to_cvimg(self.pix)
-        self.pix.save(const.SCREEN_PATH)
-        self._screen_cv2 = cv2.imread(const.SCREEN_PATH)
+        self.pix.save(global_data.SCREEN_PATH)
+        self._screen_cv2 = cv2.imread(global_data.SCREEN_PATH)
 
         return self.img
 
     def capture_global(self):
         sc_region = (0, 0, 1900, 1000) #距离左上右下的像素
         sc_img = ImageGrab.grab(sc_region)
-        save_path = const.SCREEN_PATH
+        save_path = global_data.SCREEN_PATH
         sc_img.save(save_path)
 
         self._screen_cv2 = cv2.imread(save_path)

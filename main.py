@@ -131,6 +131,7 @@ if __name__ == '__main__':
     global_data.GAME_STATE = const.GameState.RUNNING
 
     if global_data.IS_GLOBAL:
+        global_data.SCREEN_PATH = 'screen/screen_global.bmp'
         hotkey = Hotkey()
         hotkey.start()
         main()
