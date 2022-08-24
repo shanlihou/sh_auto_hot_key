@@ -37,7 +37,7 @@ class Collect(object):
             self._screen_utils = screen.Screen('TCGamer', 'WindowIcon')
         self._flag = RunFlag.START
         self._attack_step = 0
-        self._collect_png = 'zi_su.png'
+        self._collect_png = 'qing_ren.png'
         self._search_time_out = 60
         self._wait_time_out = 3
         self._time_out = 5
@@ -56,8 +56,8 @@ class Collect(object):
         if self._flag == RunFlag.START:
             pos = self._screen_utils.get_target_pos('jiao_yi.png', 0.05, limit=(1376, 67, 1492, 167))
             left_pos = self._screen_utils.get_target_pos('zuo_la.png', 0.1)
-            boss_hp_pos = self._screen_utils.get_target_pos('boss_hp.png', 0.01)
-            utils.INFO('jiaoyi:{}, zuola:{}, boss_hp:{}'.format(pos, left_pos, boss_hp_pos))
+            boss_hp_pos = self._screen_utils.get_target_pos('boss_head.png', 0.01)
+            utils.INFO('jiaoyi:{}, zuola:{}, boss_head:{}'.format(pos, left_pos, boss_hp_pos))
             if pos is not None:
                 self._screen_utils.click(pos[0] + 10, pos[1] + 10)
                 self._flag = RunFlag.EXCHANGE
@@ -71,7 +71,11 @@ class Collect(object):
 
         elif self._flag == RunFlag.EXCHANGE:
             pos = self._screen_utils.get_target_pos('guan_zhu.png', 0.05, limit=(600, 170, 700, 270))
-            if pos is not None:
+            _col_pos = self._screen_utils.get_target_pos(self._collect_png, 0.015)
+            if _col_pos is not None:
+                self._flag = RunFlag.FAVO
+                
+            elif pos is not None:
                 self._screen_utils.click(pos[0] + 10, pos[1] + 10)
                 self._cache_dic['push_guan_zhu'] = 1
 
@@ -79,7 +83,7 @@ class Collect(object):
                 self._flag = RunFlag.FAVO
         
         elif self._flag == RunFlag.FAVO:
-            pos = self._screen_utils.get_target_pos(self._collect_png, 0.01)
+            pos = self._screen_utils.get_target_pos(self._collect_png, 0.015)
             get_pos = self._screen_utils.get_target_pos('huo_qu.png', 0.07)
 
             if get_pos:
