@@ -37,11 +37,12 @@ class Collect(object):
             self._screen_utils = screen.Screen('TCGamer', 'WindowIcon')
         self._flag = RunFlag.START
         self._attack_step = 0
-        self._collect_png = 'qing_ren.png'
+        self._collect_png = 'song_rong.png'
         self._search_time_out = 60
         self._wait_time_out = 3
         self._time_out = 5
         self._cache_dic = {}
+        self._last_flag = self._flag
 
     def is_bind(self):
         return self._screen_utils.is_bind()
@@ -57,6 +58,9 @@ class Collect(object):
             pos = self._screen_utils.get_target_pos('jiao_yi.png', 0.05, limit=(1376, 67, 1492, 167))
             left_pos = self._screen_utils.get_target_pos('zuo_la.png', 0.1)
             boss_hp_pos = self._screen_utils.get_target_pos('boss_head.png', 0.01)
+            nv_ba = self._screen_utils.get_target_pos('nv_ba.png', 0.02)
+            hun_dun = self._screen_utils.get_target_pos('hun_dun.png', 0.01)
+
             utils.INFO('jiaoyi:{}, zuola:{}, boss_head:{}'.format(pos, left_pos, boss_hp_pos))
             if pos is not None:
                 self._screen_utils.click(pos[0] + 10, pos[1] + 10)
@@ -64,6 +68,9 @@ class Collect(object):
                 self._cache_dic.pop('push_guan_zhu', None)
 
             elif boss_hp_pos is not None:
+                self._screen_utils.click(1666, 115)
+
+            elif nv_ba is not None or hun_dun is not None:
                 self._screen_utils.click(1666, 115)
 
             elif left_pos is not None:
@@ -92,6 +99,10 @@ class Collect(object):
                 
             elif pos is not None:
                 self._screen_utils.click(pos[0] + 10, pos[1] + 10)
+
+            elif self._time_out > 20:
+                self._flag = RunFlag.EXCHANGE
+                self._cache_dic.pop('push_guan_zhu', None)
 
         elif self._flag == RunFlag.SHENG_HUO:
             pos = self._screen_utils.get_target_pos('sheng_huo.png', 0.03)
@@ -138,7 +149,13 @@ class Collect(object):
         elif self._flag == RunFlag.FIX:
             self._flag = RunFlag.START
 
-        utils.INFO(get_flag_name(self._flag))
+        utils.INFO(get_flag_name(self._flag), self._last_flag)
+        if self._last_flag != self._flag:
+            self._time_out = 0
+        else:
+            self._time_out += 1
+
+        self._last_flag = self._flag
 
 def main():
     #auto_go()
